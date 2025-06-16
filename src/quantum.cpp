@@ -4,7 +4,7 @@
 #include <memory>
 #include <cmath>
 
-Qdit::Qdit(unsigned dimension) : amplitudes(dimension){
+Qdit::Qdit(unsigned dimension) : amplitudes(dimension, 1){
     std::complex<double> temp;
     for(int i = 0; i < dimension; i++){
         std::complex<double> temp(
@@ -15,9 +15,9 @@ Qdit::Qdit(unsigned dimension) : amplitudes(dimension){
     amplitudes.normalize();
 }
 
-Qdit::Qdit(ComplexVector amplitudes) : amplitudes(amplitudes.len()){
+Qdit::Qdit(ComplexMatrix amplitudes) : amplitudes(amplitudes){
     double sum = 0;
-    for(int i = 0; i < amplitudes.len(); i++)
+    for(int i = 0; i < amplitudes.count(); i++)
         sum += std::pow(std::abs(amplitudes.getValue(i)), 2);
     if(sum - 1.0 > AMPLITUDE_EPSILON){
         std::cout << "ERROR: Invalid qdit amplitudes!" << std::endl;
@@ -26,7 +26,7 @@ Qdit::Qdit(ComplexVector amplitudes) : amplitudes(amplitudes.len()){
     this->amplitudes = amplitudes;  
 }
 
-ComplexVector Qdit::ket(){
+ComplexMatrix Qdit::ket(){
     return amplitudes;
 }
 
@@ -47,8 +47,8 @@ std::complex<double> Qdit::braket(Qdit q1, Qdit q2){
 }
 
 Qbit::Qbit() : Qdit(2){}
-Qbit::Qbit(ComplexVector amplitudes) : Qdit(amplitudes){
-    if(amplitudes.len() != 2){
+Qbit::Qbit(ComplexMatrix amplitudes) : Qdit(amplitudes){
+    if(amplitudes.count() != 2){
         std::cout << "ERROR: Invalid qbit amplitudes!" << std::endl;
         exit(0);
     }    
@@ -90,8 +90,8 @@ double HermitianOperator::getEigenValue(unsigned i){
     return (m + (1.0 - i*2) * std::sqrt(m*m - p)).real(); 
 }
 
-ComplexVector HermitianOperator::getEigenVector(unsigned i){
-    ComplexVector eigenVector(2);
+ComplexMatrix HermitianOperator::getEigenVector(unsigned i){
+    ComplexMatrix eigenVector(2,1);
     double lambda = getEigenValue(i);
     std::complex<double> a = getValue(0);
     std::complex<double> b = getValue(1);

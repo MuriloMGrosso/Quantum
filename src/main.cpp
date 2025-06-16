@@ -22,19 +22,11 @@ int main(){
     HermitianOperator PI0 = HermitianOperator::PI(0);
     HermitianOperator PI1 = HermitianOperator::PI(1);
 
+    std::cout << X.getEigenValue(0) << std::endl;
+    std::cout << X.getEigenVector(0) << std::endl;
+
     std::cout << X.getEigenValue(1) << std::endl;
     std::cout << X.getEigenVector(1) << std::endl;
-
-    std::cout << q.ket() << std::endl;
-
-    for(int i = 0; i < 2; i++)
-        std::cout << X.measure(q) << std::endl;
-    for(int i = 0; i < 2; i++)
-        std::cout << Z.measure(q) << std::endl;
-    for(int i = 0; i < 2; i++)
-        std::cout << X.measure(q) << std::endl;
-
-    std::cout << q.ket() << std::endl;
 
     return 0;
 }

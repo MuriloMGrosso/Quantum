@@ -19,6 +19,10 @@ ComplexMatrix::ComplexMatrix(unsigned n, unsigned m) : n(n), m(m){
         matrix[i] = std::complex<double>();
 }
 
+int ComplexMatrix::count(){
+    return n*m;
+}
+
 std::complex<double> ComplexMatrix::getTrace(){
     if(m != n){
         std::cout << "ERROR: Cannot get trace from a non-squared matrix!" << std::endl;
@@ -53,6 +57,24 @@ void ComplexMatrix::setValue(std::complex<double> value, unsigned i){
 
 void ComplexMatrix::setValue(std::complex<double> value, unsigned i, unsigned j){
     setValue(value, i*m + j);
+}
+
+ComplexMatrix ComplexMatrix::normalize(){
+    if(m != 1 && n != 1){
+        std::cout << "ERROR: Cannot normalize a non-vector matrix!" << std::endl;
+        exit(0);
+    }
+
+    std::complex<double> temp;
+    for(int i = 0; i < n * m; i++){
+        temp += std::pow(std::abs(getValue(i)), 2);
+    }
+    temp = std::sqrt(temp);
+
+    for(int i = 0; i < n * m; i++)
+        setValue(getValue(i) / temp, i);
+
+    return (*this) * (getValue(0).real() < 0 ? -1 : 1);
 }
 
 ComplexMatrix ComplexMatrix::getConjugateTranspose(){
@@ -139,23 +161,4 @@ std::ostream& operator<<(std::ostream& os, const ComplexMatrix& mat){
         os << (mat.n == 1 ? ")" : i == mat.n - 1 ? "/" : i == 0 ? "\\" : " |") << std::endl;
     }
     return os;
-}
-
-ComplexVector::ComplexVector(unsigned n) : ComplexMatrix(n, 1){}
-
-ComplexVector ComplexVector::normalize(){
-    std::complex<double> temp;
-    for(int i = 0; i < n * m; i++){
-        temp += std::pow(std::abs(getValue(i)), 2);
-    }
-    temp = std::sqrt(temp);
-
-    for(int i = 0; i < n * m; i++)
-        setValue(getValue(i) / temp, i);
-
-    return *this;
-}
-
-int ComplexVector::len(){
-    return n;
 }

@@ -8,11 +8,11 @@
 
 class Qdit{
 protected:
-    ComplexVector amplitudes;
+    ComplexMatrix amplitudes;
 public:
     Qdit(unsigned dimension);
-    Qdit(ComplexVector amplitudes);
-    ComplexVector ket();
+    Qdit(ComplexMatrix amplitudes);
+    ComplexMatrix ket();
     ComplexMatrix bra();
     std::complex<double> getAmplitude(unsigned i);
     static ComplexMatrix outerProduct(Qdit q1, Qdit q2);
@@ -22,7 +22,7 @@ public:
 class Qbit : public Qdit{
 public:
     Qbit();
-    Qbit(ComplexVector amplitudes);
+    Qbit(ComplexMatrix amplitudes);
     Qbit(std::complex<double> alpha, std::complex<double> beta);
     static Qbit zero();
     static Qbit one();
@@ -37,7 +37,7 @@ public:
     double measure(Qdit &q);
     double expectation(Qdit q);
     double getEigenValue(unsigned i);
-    ComplexVector getEigenVector(unsigned i);
+    ComplexMatrix getEigenVector(unsigned i);
     static HermitianOperator I();
     static HermitianOperator X();
     static HermitianOperator Z();
