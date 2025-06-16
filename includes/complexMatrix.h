@@ -1,3 +1,14 @@
+/*----------------------------------------------------------------------------------
+   _____                      _             __  __       _        _      
+  / ____|                    | |           |  \/  |     | |      (_)     
+ | |     ___  _ __ ___  _ __ | | _____  __ | \  / | __ _| |_ _ __ ___  __
+ | |    / _ \| '_ ` _ \| '_ \| |/ _ \ \/ / | |\/| |/ _` | __| '__| \ \/ /
+ | |___| (_) | | | | | | |_) | |  __/>  <  | |  | | (_| | |_| |  | |>  < 
+  \_____\___/|_| |_| |_| .__/|_|\___/_/\_\ |_|  |_|\__,_|\__|_|  |_/_/\_\
+                       | |                                               
+                       |_|                                               
+----------------------------------------------------------------------------------*/
+
 #ifndef COMPLEX_MATRIX_H
 #define COMPLEX_MATRIX_H
 
@@ -23,15 +34,16 @@ public:
     ComplexMatrix operator-(ComplexMatrix other);
     ComplexMatrix operator*(ComplexMatrix other);
     ComplexMatrix operator*(std::complex<double> a);
-    friend ComplexMatrix operator*(std::complex<double> a, const ComplexMatrix& mat);
     ComplexMatrix operator/(std::complex<double> a);
     friend std::ostream& operator<<(std::ostream& os, const ComplexMatrix& mat);
+    friend ComplexMatrix operator*(std::complex<double> a, const ComplexMatrix& mat);
 };
 
 class ComplexVector : public ComplexMatrix{
 public:
     ComplexVector(unsigned n);
     ComplexVector normalize();
+    int len();
 };
 
 #endif
