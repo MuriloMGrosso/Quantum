@@ -16,6 +16,10 @@ Qdit::Qdit(unsigned dimension) : amplitudes(dimension, 1){
 }
 
 Qdit::Qdit(ComplexMatrix amplitudes) : amplitudes(amplitudes){
+    setAmplitudes(amplitudes); 
+}
+
+void Qdit::setAmplitudes(ComplexMatrix amplitudes){
     double sum = 0;
     for(int i = 0; i < amplitudes.count(); i++)
         sum += std::pow(std::abs(amplitudes.getValue(i)), 2);
@@ -23,7 +27,13 @@ Qdit::Qdit(ComplexMatrix amplitudes) : amplitudes(amplitudes){
         std::cout << "ERROR: Invalid qdit amplitudes!" << std::endl;
         exit(0);
     }
-    this->amplitudes = amplitudes;  
+    this->amplitudes = amplitudes;
+    
+    if(entangledQdit){
+        entangledQdit->amplitudes = amplitudes;
+        entangledQdit->breakEntanglement();
+        breakEntanglement();
+    }
 }
 
 ComplexMatrix Qdit::ket(){
@@ -36,6 +46,26 @@ ComplexMatrix Qdit::bra(){
 
 std::complex<double> Qdit::getAmplitude(unsigned i){
     return amplitudes.getValue(i);
+}
+
+void Qdit::entangle(Qdit &q){
+    entangledQdit = &q;
+}
+
+void Qdit::breakEntanglement(){
+    entangledQdit = NULL;
+}
+
+void Qdit::entangle(Qdit &q1, Qdit &q2){
+    if(q1.amplitudes.count() != q2.amplitudes.count()){
+        std::cout << "ERROR: Cannot entangle these Qdits!" << std::endl;
+        exit(0);
+    }
+    Qdit temp(q1.amplitudes.count());
+    q1 = temp;
+    q2 = temp;
+    q1.entangle(q2);
+    q2.entangle(q1);
 }
 
 ComplexMatrix Qdit::outerProduct(Qdit q1, Qdit q2){
@@ -69,14 +99,14 @@ Qbit Qbit::minus()  { return Qbit(1/std::sqrt(2),-1/std::sqrt(2)); }
 
 HermitianOperator::HermitianOperator(ComplexMatrix matrix) : ComplexMatrix(matrix){}
 
-double HermitianOperator::measure(Qdit &q){
+double HermitianOperator::measure(Qbit &q){
     double r = (double)std::rand() / RAND_MAX;
     double p = std::pow(std::abs((getEigenVector(0).getConjugateTranspose()*q.ket()).getValue(0)),2);
     if(p >= r){
-        q = Qbit(getEigenVector(0));
+        q.setAmplitudes(getEigenVector(0));
         return getEigenValue(0);
     }
-    q = Qbit(getEigenVector(1));
+    q.setAmplitudes(getEigenVector(1));
     return getEigenValue(1);
 }
 
@@ -112,7 +142,7 @@ ComplexMatrix HermitianOperator::getEigenVector(unsigned i){
     return eigenVector.normalize();
 }
 
-double HermitianOperator::expectation(Qdit q){
+double HermitianOperator::expectation(Qbit q){
     return (q.bra() * (*this) * q.ket()).getValue(0).real();
 }
 

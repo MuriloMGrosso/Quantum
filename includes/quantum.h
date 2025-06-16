@@ -9,12 +9,17 @@
 class Qdit{
 protected:
     ComplexMatrix amplitudes;
+    Qdit* entangledQdit;
+    void entangle(Qdit &q);
+    void breakEntanglement();
 public:
     Qdit(unsigned dimension);
     Qdit(ComplexMatrix amplitudes);
+    void setAmplitudes(ComplexMatrix amplitudes);
     ComplexMatrix ket();
     ComplexMatrix bra();
     std::complex<double> getAmplitude(unsigned i);
+    static void entangle(Qdit &q1, Qdit &q2);
     static ComplexMatrix outerProduct(Qdit q1, Qdit q2);
     static std::complex<double> braket(Qdit q1, Qdit q2);
 };
@@ -34,8 +39,8 @@ class HermitianOperator : public ComplexMatrix{
 private:
     HermitianOperator(ComplexMatrix matrix);
 public:
-    double measure(Qdit &q);
-    double expectation(Qdit q);
+    double measure(Qbit &q);
+    double expectation(Qbit q);
     double getEigenValue(unsigned i);
     ComplexMatrix getEigenVector(unsigned i);
     static HermitianOperator I();

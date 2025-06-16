@@ -5,28 +5,39 @@
 #include "../includes/complexMatrix.h"
 #include "../includes/quantum.h"
 
+#define Q_ZERO Qbit::zero()
+#define Q_ONE Qbit::one()
+#define Q_PLUS Qbit::plus()
+#define Q_MINUS Qbit::minus()
+#define I HermitianOperator::I()
+#define X HermitianOperator::X()
+#define Z HermitianOperator::Z()
+#define Y HermitianOperator::Y()
+#define H HermitianOperator::H()
+#define PI0 HermitianOperator::PI0(0)
+#define PI1 HermitianOperator::PI1(1)
+
 int main(){
     std::srand(std::time(0));
 
-    Qbit qZero  = Qbit::zero();
-    Qbit qOne   = Qbit::one();
-    Qbit qPlus  = Qbit::plus();
-    Qbit qMinus = Qbit::minus();
-    Qbit q;
+    Qbit qA, qB;
+    Qdit::entangle(qA, qB);
 
-    HermitianOperator I = HermitianOperator::I();
-    HermitianOperator X = HermitianOperator::X();
-    HermitianOperator Z = HermitianOperator::Z();
-    HermitianOperator Y = HermitianOperator::Y();
-    HermitianOperator H = HermitianOperator::H();
-    HermitianOperator PI0 = HermitianOperator::PI(0);
-    HermitianOperator PI1 = HermitianOperator::PI(1);
+    std::cout << "Measure entangled particles in Z" << std::endl;
+    std::cout << Z.measure(qA) << std::endl;
+    std::cout << Z.measure(qB) << std::endl;
 
-    std::cout << X.getEigenValue(0) << std::endl;
-    std::cout << X.getEigenVector(0) << std::endl;
+    std::cout << "Measure A in Z" << std::endl;
+    std::cout << Z.measure(qA) << std::endl;
+    std::cout << Z.measure(qA) << std::endl;
+    std::cout << Z.measure(qA) << std::endl;
 
-    std::cout << X.getEigenValue(1) << std::endl;
-    std::cout << X.getEigenVector(1) << std::endl;
+    std::cout << "Measure A in X" << std::endl;
+    std::cout << X.measure(qA) << std::endl;
+
+    std::cout << "Particles in Z" << std::endl;
+    std::cout << Z.measure(qA) << std::endl;
+    std::cout << Z.measure(qB) << std::endl;
 
     return 0;
 }
