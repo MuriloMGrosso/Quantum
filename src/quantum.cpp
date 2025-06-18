@@ -28,12 +28,6 @@ void Qdit::setAmplitudes(ComplexMatrix amplitudes){
         exit(0);
     }
     this->amplitudes = amplitudes;
-    
-    if(entangledQdit){
-        entangledQdit->amplitudes = amplitudes;
-        entangledQdit->breakEntanglement();
-        breakEntanglement();
-    }
 }
 
 ComplexMatrix Qdit::ket(){
@@ -46,26 +40,6 @@ ComplexMatrix Qdit::bra(){
 
 std::complex<double> Qdit::getAmplitude(unsigned i){
     return amplitudes.getValue(i);
-}
-
-void Qdit::entangle(Qdit &q){
-    entangledQdit = &q;
-}
-
-void Qdit::breakEntanglement(){
-    entangledQdit = NULL;
-}
-
-void Qdit::entangle(Qdit &q1, Qdit &q2){
-    if(q1.amplitudes.count() != q2.amplitudes.count()){
-        std::cout << "ERROR: Cannot entangle these Qdits!" << std::endl;
-        exit(0);
-    }
-    Qdit temp(q1.amplitudes.count());
-    q1 = temp;
-    q2 = temp;
-    q1.entangle(q2);
-    q2.entangle(q1);
 }
 
 ComplexMatrix Qdit::outerProduct(Qdit q1, Qdit q2){
@@ -92,21 +66,42 @@ Qbit::Qbit(std::complex<double> alpha, std::complex<double> beta) : Qdit(2){
     amplitudes.setValue(beta, 1);
 }
 
+void Qbit::colapse(ComplexMatrix amplitudes){
+    setAmplitudes(amplitudes);
+    if(entangledQbit){
+        entangledQbit->setAmplitudes(amplitudes);
+        entangledQbit->entangledQbit = NULL;
+        entangledQbit = NULL;
+    }
+}
+
 Qbit Qbit::zero()   { return Qbit(1, 0); }
 Qbit Qbit::one()    { return Qbit(0, 1); }
 Qbit Qbit::plus()   { return Qbit(1/std::sqrt(2), 1/std::sqrt(2)); }
 Qbit Qbit::minus()  { return Qbit(1/std::sqrt(2),-1/std::sqrt(2)); }
 
+void Qbit::entangle(Qbit &q1, Qbit &q2){
+    q1 = plus();
+    q2 = plus();
+    q1.entangledQbit = &q2;
+    q2.entangledQbit = &q1;
+}
+
 HermitianOperator::HermitianOperator(ComplexMatrix matrix) : ComplexMatrix(matrix){}
+
+Qbit HermitianOperator::apply(Qbit &q){
+    q = (*this) * q.ket();
+    return q;
+}
 
 double HermitianOperator::measure(Qbit &q){
     double r = (double)std::rand() / RAND_MAX;
     double p = std::pow(std::abs((getEigenVector(0).getConjugateTranspose()*q.ket()).getValue(0)),2);
     if(p >= r){
-        q.setAmplitudes(getEigenVector(0));
+        q.colapse(getEigenVector(0));
         return getEigenValue(0);
     }
-    q.setAmplitudes(getEigenVector(1));
+    q.colapse(getEigenVector(1));
     return getEigenValue(1);
 }
 
@@ -182,5 +177,14 @@ HermitianOperator HermitianOperator::PI(unsigned i){
     }
 
     ComplexMatrix mat = Qbit(1-i,i).ket()*Qbit(1-i,i).bra();
+    return HermitianOperator(mat);
+}
+
+HermitianOperator HermitianOperator::RY(double theta){
+    ComplexMatrix mat(2,2);
+    mat.setValue(std::cos(theta/2), 0);
+    mat.setValue(-std::sin(theta/2),1);
+    mat.setValue(std::sin(theta/2), 2);
+    mat.setValue(std::cos(theta/2), 3);
     return HermitianOperator(mat);
 }

@@ -4,6 +4,7 @@
 #include <ctime>
 #include "../includes/complexMatrix.h"
 #include "../includes/quantum.h"
+#include "../includes/chsh.h"
 
 #define Q_ZERO Qbit::zero()
 #define Q_ONE Qbit::one()
@@ -20,24 +21,37 @@
 int main(){
     std::srand(std::time(0));
 
-    Qbit qA, qB;
-    Qdit::entangle(qA, qB);
+    Qbit qA = Q_ZERO;
+    Qbit qB = Q_ZERO;
 
-    std::cout << "Measure entangled particles in Z" << std::endl;
-    std::cout << Z.measure(qA) << std::endl;
-    std::cout << Z.measure(qB) << std::endl;
+    std::cout << ComplexMatrix::tensorProduct(qA.ket(), qB.ket()) << std::endl;
 
-    std::cout << "Measure A in Z" << std::endl;
-    std::cout << Z.measure(qA) << std::endl;
-    std::cout << Z.measure(qA) << std::endl;
-    std::cout << Z.measure(qA) << std::endl;
+    H.apply(qA);
 
-    std::cout << "Measure A in X" << std::endl;
-    std::cout << X.measure(qA) << std::endl;
+    std::cout << ComplexMatrix::tensorProduct(qA.ket(), qB.ket()) << std::endl;
 
-    std::cout << "Particles in Z" << std::endl;
-    std::cout << Z.measure(qA) << std::endl;
-    std::cout << Z.measure(qB) << std::endl;
+    X.apply(qB);
+
+    std::cout << ComplexMatrix::tensorProduct(qA.ket(), qB.ket()) << std::endl;
+
+    // Qbit qA, qB;
+    // int x, y, a, b;
+    // double n = 10000;
+    // double winCount = 0;
+
+    // for(int i = 0; i < n; i++){
+    //     Qbit::entangle(qA, qB);
+
+    //     Referee referee(x,y);
+    //     Player alice(x,qA);
+    //     Player bob(y,qB);
+
+    //     a = alice.quantumStrategy();
+    //     b = bob.quantumStrategy();
+    //     winCount += referee.check(a,b);
+    // }
+
+    // std::cout << "Win rate: " << winCount/n*100 << "%" << std::endl;
 
     return 0;
 }

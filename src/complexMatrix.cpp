@@ -1,13 +1,13 @@
-/*----------------------------------------------------------------------------------
-   _____                      _             __  __       _        _      
-  / ____|                    | |           |  \/  |     | |      (_)     
- | |     ___  _ __ ___  _ __ | | _____  __ | \  / | __ _| |_ _ __ ___  __
- | |    / _ \| '_ ` _ \| '_ \| |/ _ \ \/ / | |\/| |/ _` | __| '__| \ \/ /
- | |___| (_) | | | | | | |_) | |  __/>  <  | |  | | (_| | |_| |  | |>  < 
-  \_____\___/|_| |_| |_| .__/|_|\___/_/\_\ |_|  |_|\__,_|\__|_|  |_/_/\_\
-                       | |                                               
-                       |_|                                               
-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------------------------------
+   _____                      _             __  __       _        _                 |
+  / ____|                    | |           |  \/  |     | |      (_)                | COMPLEX MATRIX:
+ | |     ___  _ __ ___  _ __ | | _____  __ | \  / | __ _| |_ _ __ ___  __           | A simple representation of a matematical
+ | |    / _ \| '_ ` _ \| '_ \| |/ _ \ \/ / | |\/| |/ _` | __| '__| \ \/ /           | complex matrix and its basic functions.
+ | |___| (_) | | | | | | |_) | |  __/>  <  | |  | | (_| | |_| |  | |>  <            | 
+  \_____\___/|_| |_| |_| .__/|_|\___/_/\_\ |_|  |_|\__,_|\__|_|  |_/_/\_\           |
+                       | |                                                          | By Murilo M. Grosso
+                       |_|                                                          |                                                                                                   |
+----------------------------------------------------------------------------------------------------------------------------*/
 
 #include "../includes/complexMatrix.h"
 #include <iostream>
@@ -19,9 +19,7 @@ ComplexMatrix::ComplexMatrix(unsigned n, unsigned m) : n(n), m(m){
         matrix[i] = std::complex<double>();
 }
 
-int ComplexMatrix::count(){
-    return n*m;
-}
+int ComplexMatrix::count(){ return n*m; }
 
 std::complex<double> ComplexMatrix::getTrace(){
     if(m != n){
@@ -74,16 +72,17 @@ ComplexMatrix ComplexMatrix::normalize(){
     for(int i = 0; i < n * m; i++)
         setValue(getValue(i) / temp, i);
 
-    return (*this) * (getValue(0).real() < 0 ? -1 : 1);
+    // First element as positive value
+    (*this) = (*this) * (getValue(0).real() < 0 ? -1 : 1);
+
+    return (*this);
 }
 
 ComplexMatrix ComplexMatrix::getConjugateTranspose(){
     ComplexMatrix mat(m,n);
-    for(int line = 0; line < m; line++){
-        for(int col = 0; col < n; col++){
+    for(int line = 0; line < m; line++)
+        for(int col = 0; col < n; col++)
             mat.setValue(std::conj(getValue(col, line)), line, col);        
-        }
-    }
     return mat;
 }
 
@@ -147,6 +146,18 @@ ComplexMatrix operator*(std::complex<double> a, const ComplexMatrix& mat){
 
 ComplexMatrix ComplexMatrix::operator/(std::complex<double> a){
     return (*this)*(1.0/a);
+}
+
+ComplexMatrix ComplexMatrix::tensorProduct(ComplexMatrix mat1, ComplexMatrix mat2){
+    int n = mat1.n * mat2.n;
+    int m = mat1.m * mat2.m;
+    ComplexMatrix mat(n, m);
+    for(int line = 0; line < n; line++){
+        for(int col = 0; col < m; col++){
+            mat.setValue(mat1.getValue(line/mat2.n,col/mat2.m)*mat2.getValue(line%mat2.n,col%mat2.m), line, col);     
+        }
+    }
+    return mat;
 }
 
 std::ostream& operator<<(std::ostream& os, const ComplexMatrix& mat){
