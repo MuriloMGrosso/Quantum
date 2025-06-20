@@ -6,6 +6,10 @@
 
 #define AMPLITUDE_EPSILON 1e-15
 
+class Qdit;
+class Qbit;
+class UnitaryOperator;
+
 class Qdit{
 protected:
     ComplexMatrix amplitudes;
@@ -21,8 +25,6 @@ public:
 };
 
 class Qbit : public Qdit{
-private:
-    Qbit *entangledQbit;
 public:
     Qbit();
     Qbit(ComplexMatrix amplitudes);
@@ -32,25 +34,23 @@ public:
     static Qbit one();
     static Qbit plus();
     static Qbit minus();
-    static void entangle(Qbit &q1, Qbit &q2);
 };
 
-class HermitianOperator : public ComplexMatrix{
+class UnitaryOperator : public ComplexMatrix{
 private:
-    HermitianOperator(ComplexMatrix matrix);
+    UnitaryOperator(ComplexMatrix matrix);
 public:
     Qbit apply(Qbit &q);
     double measure(Qbit &q);
     double expectation(Qbit q);
     double getEigenValue(unsigned i);
     ComplexMatrix getEigenVector(unsigned i);
-    static HermitianOperator I();
-    static HermitianOperator X();
-    static HermitianOperator Z();
-    static HermitianOperator Y();
-    static HermitianOperator H();
-    static HermitianOperator PI(unsigned i);
-    static HermitianOperator RY(double theta);
+    static UnitaryOperator I();
+    static UnitaryOperator X();
+    static UnitaryOperator Z();
+    static UnitaryOperator Y();
+    static UnitaryOperator H();
+    static UnitaryOperator Ry(double theta);
 };
 
 #endif

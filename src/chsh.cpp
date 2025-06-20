@@ -23,6 +23,6 @@ int Player::oppositStrategy(){ return !x; }
 
 int Player::quantumStrategy(){
     if(x == 0)
-        return (HermitianOperator::Z().measure(q) + 1)/2;
-    return (HermitianOperator::Z().measure(q) + 1)/2;
+        return (UnitaryOperator::Z().measure(q) + 1)/2;
+    return (UnitaryOperator::Z().measure(q) + 1)/2;
 }

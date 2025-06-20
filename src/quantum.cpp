@@ -68,11 +68,6 @@ Qbit::Qbit(std::complex<double> alpha, std::complex<double> beta) : Qdit(2){
 
 void Qbit::colapse(ComplexMatrix amplitudes){
     setAmplitudes(amplitudes);
-    if(entangledQbit){
-        entangledQbit->setAmplitudes(amplitudes);
-        entangledQbit->entangledQbit = NULL;
-        entangledQbit = NULL;
-    }
 }
 
 Qbit Qbit::zero()   { return Qbit(1, 0); }
@@ -80,21 +75,14 @@ Qbit Qbit::one()    { return Qbit(0, 1); }
 Qbit Qbit::plus()   { return Qbit(1/std::sqrt(2), 1/std::sqrt(2)); }
 Qbit Qbit::minus()  { return Qbit(1/std::sqrt(2),-1/std::sqrt(2)); }
 
-void Qbit::entangle(Qbit &q1, Qbit &q2){
-    q1 = plus();
-    q2 = plus();
-    q1.entangledQbit = &q2;
-    q2.entangledQbit = &q1;
-}
+UnitaryOperator::UnitaryOperator(ComplexMatrix matrix) : ComplexMatrix(matrix){}
 
-HermitianOperator::HermitianOperator(ComplexMatrix matrix) : ComplexMatrix(matrix){}
-
-Qbit HermitianOperator::apply(Qbit &q){
-    q = (*this) * q.ket();
+Qbit UnitaryOperator::apply(Qbit &q){
+    q.setAmplitudes((*this) * q.ket());
     return q;
 }
 
-double HermitianOperator::measure(Qbit &q){
+double UnitaryOperator::measure(Qbit &q){
     double r = (double)std::rand() / RAND_MAX;
     double p = std::pow(std::abs((getEigenVector(0).getConjugateTranspose()*q.ket()).getValue(0)),2);
     if(p >= r){
@@ -105,7 +93,7 @@ double HermitianOperator::measure(Qbit &q){
     return getEigenValue(1);
 }
 
-double HermitianOperator::getEigenValue(unsigned i){
+double UnitaryOperator::getEigenValue(unsigned i){
     if(std::abs((int)i) > 2){
         std::cout << "ERROR: Eigen value index out off operator bounds!" << std::endl;
         exit(0);
@@ -115,7 +103,7 @@ double HermitianOperator::getEigenValue(unsigned i){
     return (m + (1.0 - i*2) * std::sqrt(m*m - p)).real(); 
 }
 
-ComplexMatrix HermitianOperator::getEigenVector(unsigned i){
+ComplexMatrix UnitaryOperator::getEigenVector(unsigned i){
     ComplexMatrix eigenVector(2,1);
     double lambda = getEigenValue(i);
     std::complex<double> a = getValue(0);
@@ -137,54 +125,44 @@ ComplexMatrix HermitianOperator::getEigenVector(unsigned i){
     return eigenVector.normalize();
 }
 
-double HermitianOperator::expectation(Qbit q){
+double UnitaryOperator::expectation(Qbit q){
     return (q.bra() * (*this) * q.ket()).getValue(0).real();
 }
 
-HermitianOperator HermitianOperator::I(){
+UnitaryOperator UnitaryOperator::I(){
     ComplexMatrix mat = Qbit::zero().ket()*Qbit::zero().bra() + 
                         Qbit::one().ket()*Qbit::one().bra();
-    return HermitianOperator(mat);
+    return UnitaryOperator(mat);
 }
 
-HermitianOperator HermitianOperator::X(){
+UnitaryOperator UnitaryOperator::X(){
     ComplexMatrix mat = Qbit::zero().ket()*Qbit::one().bra() + 
                         Qbit::one().ket()*Qbit::zero().bra();
-    return HermitianOperator(mat);
+    return UnitaryOperator(mat);
 }
 
-HermitianOperator HermitianOperator::Z(){
+UnitaryOperator UnitaryOperator::Z(){
     ComplexMatrix mat = Qbit::plus().ket()*Qbit::minus().bra() + 
                         Qbit::minus().ket()*Qbit::plus().bra();
-    return HermitianOperator(mat);
+    return UnitaryOperator(mat);
 }
 
-HermitianOperator HermitianOperator::Y(){
+UnitaryOperator UnitaryOperator::Y(){
     ComplexMatrix mat = std::complex<double>(0,1) * X() * Z();
-    return HermitianOperator(mat);
+    return UnitaryOperator(mat);
 }
 
-HermitianOperator HermitianOperator::H(){
+UnitaryOperator UnitaryOperator::H(){
     ComplexMatrix mat = Qbit::plus().ket()*Qbit::zero().bra() + 
                         Qbit::minus().ket()*Qbit::one().bra();
-    return HermitianOperator(mat);
+    return UnitaryOperator(mat);
 }
 
-HermitianOperator HermitianOperator::PI(unsigned i){
-    if(std::abs((int)i) > 1){
-        std::cout << "ERROR: Index out off projector bounds!" << std::endl;
-        exit(0);
-    }
-
-    ComplexMatrix mat = Qbit(1-i,i).ket()*Qbit(1-i,i).bra();
-    return HermitianOperator(mat);
-}
-
-HermitianOperator HermitianOperator::RY(double theta){
+UnitaryOperator UnitaryOperator::Ry(double theta){
     ComplexMatrix mat(2,2);
     mat.setValue(std::cos(theta/2), 0);
     mat.setValue(-std::sin(theta/2),1);
     mat.setValue(std::sin(theta/2), 2);
     mat.setValue(std::cos(theta/2), 3);
-    return HermitianOperator(mat);
+    return UnitaryOperator(mat);
 }
