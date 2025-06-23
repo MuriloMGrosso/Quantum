@@ -9,14 +9,19 @@
 class Qdit;
 class Qbit;
 class UnitaryOperator;
+class CompositeSystem;
 
 class Qdit{
 protected:
     ComplexMatrix amplitudes;
+    int compositeSystemIndex;
+    CompositeSystem* compositeSystem;
 public:
     Qdit(unsigned dimension);
     Qdit(ComplexMatrix amplitudes);
+    Qdit apply(UnitaryOperator U);
     void setAmplitudes(ComplexMatrix amplitudes);
+    void setCompositeSystem(CompositeSystem &compositeSystem, int index);
     ComplexMatrix ket();
     ComplexMatrix bra();
     std::complex<double> getAmplitude(unsigned i);
@@ -40,7 +45,7 @@ class UnitaryOperator : public ComplexMatrix{
 private:
     UnitaryOperator(ComplexMatrix matrix);
 public:
-    Qbit apply(Qbit &q);
+    Qdit apply(Qdit &q);
     double measure(Qbit &q);
     double expectation(Qbit q);
     double getEigenValue(unsigned i);
@@ -50,7 +55,20 @@ public:
     static UnitaryOperator Z();
     static UnitaryOperator Y();
     static UnitaryOperator H();
+    static UnitaryOperator CNOT();
     static UnitaryOperator Ry(double theta);
+};
+
+class CompositeSystem : public Qdit{
+private:
+    Qbit* q1;
+    Qbit* q2;
+public:
+    CompositeSystem(Qbit &q1, Qbit &q2);
+    void colapse();
+    void applyCNOT();
+    void apply(UnitaryOperator U, int index);
+    void apply(UnitaryOperator U1, UnitaryOperator U2);
 };
 
 #endif

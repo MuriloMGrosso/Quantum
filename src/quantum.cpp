@@ -4,7 +4,7 @@
 #include <memory>
 #include <cmath>
 
-Qdit::Qdit(unsigned dimension) : amplitudes(dimension, 1){
+Qdit::Qdit(unsigned dimension) : amplitudes(dimension, 1), compositeSystem(NULL){
     std::complex<double> temp;
     for(int i = 0; i < dimension; i++){
         std::complex<double> temp(
@@ -15,8 +15,16 @@ Qdit::Qdit(unsigned dimension) : amplitudes(dimension, 1){
     amplitudes.normalize();
 }
 
-Qdit::Qdit(ComplexMatrix amplitudes) : amplitudes(amplitudes){
+Qdit::Qdit(ComplexMatrix amplitudes) : amplitudes(amplitudes), compositeSystem(NULL){
     setAmplitudes(amplitudes); 
+}
+
+
+Qdit Qdit::apply(UnitaryOperator U){
+    setAmplitudes(U * ket());
+    if(compositeSystem)
+        compositeSystem->apply(U, compositeSystemIndex);
+    return *this;
 }
 
 void Qdit::setAmplitudes(ComplexMatrix amplitudes){
@@ -28,6 +36,11 @@ void Qdit::setAmplitudes(ComplexMatrix amplitudes){
         exit(0);
     }
     this->amplitudes = amplitudes;
+}
+
+void Qdit::setCompositeSystem(CompositeSystem &compositeSystem, int index){
+    this->compositeSystem = &compositeSystem;
+    compositeSystemIndex = index;
 }
 
 ComplexMatrix Qdit::ket(){
@@ -68,6 +81,8 @@ Qbit::Qbit(std::complex<double> alpha, std::complex<double> beta) : Qdit(2){
 
 void Qbit::colapse(ComplexMatrix amplitudes){
     setAmplitudes(amplitudes);
+    if(compositeSystem)
+        compositeSystem->colapse();
 }
 
 Qbit Qbit::zero()   { return Qbit(1, 0); }
@@ -77,8 +92,8 @@ Qbit Qbit::minus()  { return Qbit(1/std::sqrt(2),-1/std::sqrt(2)); }
 
 UnitaryOperator::UnitaryOperator(ComplexMatrix matrix) : ComplexMatrix(matrix){}
 
-Qbit UnitaryOperator::apply(Qbit &q){
-    q.setAmplitudes((*this) * q.ket());
+Qdit UnitaryOperator::apply(Qdit &q){
+    q.apply((*this));
     return q;
 }
 
@@ -158,6 +173,12 @@ UnitaryOperator UnitaryOperator::H(){
     return UnitaryOperator(mat);
 }
 
+UnitaryOperator UnitaryOperator::CNOT(){
+    ComplexMatrix mat = ComplexMatrix::tensorProduct(Qbit::zero().ket()*Qbit::zero().bra(), I()) + 
+                        ComplexMatrix::tensorProduct(Qbit::one().ket()*Qbit::one().bra(), X());
+    return UnitaryOperator(mat);
+}
+
 UnitaryOperator UnitaryOperator::Ry(double theta){
     ComplexMatrix mat(2,2);
     mat.setValue(std::cos(theta/2), 0);
@@ -165,4 +186,87 @@ UnitaryOperator UnitaryOperator::Ry(double theta){
     mat.setValue(std::sin(theta/2), 2);
     mat.setValue(std::cos(theta/2), 3);
     return UnitaryOperator(mat);
+}
+
+CompositeSystem::CompositeSystem(Qbit &q1, Qbit &q2) : Qdit(4), q1(&q1), q2(&q2){
+    q1.setCompositeSystem(*this, 0);
+    q2.setCompositeSystem(*this, 1);
+    setAmplitudes(ComplexMatrix::tensorProduct(q1.ket(),q2.ket()));
+}
+
+void CompositeSystem::colapse(){ //What a mess...
+    std::complex<double> a1, a2;
+    ComplexMatrix amp1(2,1);
+    ComplexMatrix amp2(2,1);
+    ComplexMatrix temp1(4,1);
+    ComplexMatrix temp2(4,4);
+    temp1 = ComplexMatrix::tensorProduct(q1->ket(),q2->ket());
+
+    for(int i = 0; i < 4; i++)
+        temp2.setValue(temp1.getValue(i),i,i);
+    setAmplitudes((temp2*ket()).normalize());
+
+    if(getAmplitude(0) != 0.0 && getAmplitude(2) != 0.0){
+        a1 = getAmplitude(0)/getAmplitude(2);
+        amp1.setValue(a1,0);
+        amp1.setValue(1,1);
+    }
+    else if(getAmplitude(1) != 0.0 && getAmplitude(3) != 0.0){
+        a1 = getAmplitude(1)/getAmplitude(3);
+        amp1.setValue(a1,0);
+        amp1.setValue(1,1);
+    }
+    else if(getAmplitude(0) == 0.0 && getAmplitude(1) == 0.0){
+        amp1.setValue(0,0);
+        amp1.setValue(1,1);
+    }
+    else{
+        amp1.setValue(1,0);
+        amp1.setValue(0,1);
+    }
+    amp1.normalize();
+    q1->setAmplitudes(amp1);
+
+    if(getAmplitude(0) != 0.0 && getAmplitude(1) != 0.0){
+        a2 = getAmplitude(0)/getAmplitude(1);
+        amp2.setValue(a2,0);
+        amp2.setValue(1,1);
+    }
+    else if(getAmplitude(2) != 0.0 && getAmplitude(3) != 0.0){
+        a2 = getAmplitude(2)/getAmplitude(3);
+        amp2.setValue(a2,0);
+        amp2.setValue(1,1);
+    }
+    else if(getAmplitude(0) == 0.0 && getAmplitude(2) == 0.0){
+        amp2.setValue(0,0);
+        amp2.setValue(1,1);
+    }
+    else{
+        amp2.setValue(1,0);
+        amp2.setValue(0,1);
+    }
+    amp2.normalize();
+    q2->setAmplitudes(amp2);
+}
+
+void CompositeSystem::applyCNOT(){
+    ComplexMatrix mat = ComplexMatrix(2,2);
+    mat.setValue((q1->bra() * Qbit::zero().ket()).getValue(0),0);
+    mat.setValue((q1->bra() * Qbit::one().ket()).getValue(0),1);
+    mat.setValue((q1->bra() * Qbit::one().ket()).getValue(0),2);
+    mat.setValue((q1->bra() * Qbit::zero().ket()).getValue(0),3);
+    q2->setAmplitudes(mat * q2->ket());
+    setAmplitudes(UnitaryOperator::CNOT()*ket());
+}
+
+void CompositeSystem::apply(UnitaryOperator U, int index){
+    if(!index)
+        setAmplitudes(ComplexMatrix::tensorProduct(U,UnitaryOperator::I())*ket());
+    else
+        setAmplitudes(ComplexMatrix::tensorProduct(UnitaryOperator::I(),U)*ket());
+}
+
+void CompositeSystem::apply(UnitaryOperator U1, UnitaryOperator U2){
+    U1.apply(*q1);
+    U2.apply(*q2);
 }
