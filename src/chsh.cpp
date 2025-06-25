@@ -10,7 +10,7 @@ Referee::Referee(int &x, int &y){
 }
 
 int Referee::check(int a, int b){
-    return x*y == a^b ? 1 : 0;
+    return (x&y) == (a^b) ? 1 : 0;
 }
 
 Player::Player(int x, Qbit q) : x(x), q(q){}

@@ -5,20 +5,16 @@
 #include <cmath>
 
 Qdit::Qdit(unsigned dimension) : amplitudes(dimension, 1), compositeSystem(NULL){
-    std::complex<double> temp;
-    for(int i = 0; i < dimension; i++){
-        std::complex<double> temp(
-            (double)std::rand() / RAND_MAX * 2 - 1, 
-            (double)std::rand() / RAND_MAX * 2 - 1);
-        amplitudes.setValue(temp, i);
-    }
+    for(int i = 0; i < dimension; i++)
+        amplitudes.setValue(
+            std::complex<double>(
+                std::rand(),std::rand()), i);
     amplitudes.normalize();
 }
 
 Qdit::Qdit(ComplexMatrix amplitudes) : amplitudes(amplitudes), compositeSystem(NULL){
     setAmplitudes(amplitudes); 
 }
-
 
 Qdit Qdit::apply(UnitaryOperator U){
     setAmplitudes(U * ket());

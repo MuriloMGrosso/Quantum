@@ -27,29 +27,6 @@ int main(){
     double n = 10000;
     double winCount = 0;
 
-    // qA = Q_ZERO;
-    // qB = Q_ZERO;
-    // CompositeSystem compositeSystem(qA, qB);
-
-    // H.apply(qA);
-    // compositeSystem.applyCNOT();
-    // std::cout << "Qbit A: " << std::endl << qA.ket() << std::endl;
-    // std::cout << "Qbit B: " << std::endl << qB.ket() << std::endl;
-    // std::cout << "System: " << std::endl << compositeSystem.ket() << std::endl;
-
-    // UnitaryOperator::Ry(PI/2 * 1).apply(qA);
-    // UnitaryOperator::Ry(-PI/4).apply(qB);
-    // std::cout << "Qbit A: " << std::endl << qA.ket() << std::endl;
-    // std::cout << "Qbit B: " << std::endl << qB.ket() << std::endl;
-    // std::cout << "System: " << std::endl << compositeSystem.ket() << std::endl;
-
-    // a = Z.measure(qA) > 0 ? 0 : 1;
-    // std::cout << "Qbit A: " << std::endl << qA.ket() << std::endl;
-    // std::cout << "Qbit B: " << std::endl << qB.ket() << std::endl;
-    // std::cout << "System: " << std::endl << compositeSystem.ket() << std::endl;
-
-    std::cout << Qbit::zero() << std::endl;
-
     for(int i = 0; i < n; i++){
         Referee referee(x,y);
 
@@ -69,25 +46,6 @@ int main(){
     }
 
     std::cout << "Win rate: " << winCount/n*100 << "%" << std::endl;
-
-    // for(int i = 0; i < n; i++){
-    //     Referee referee(x,y);
-
-    //     qA = Q_ZERO;
-    //     H.apply(qA);
-
-    //     UnitaryOperator::Ry(PI/2 * x).apply(qA);
-    //     a = Z.measure(qA) > 0 ? 0 : 1;
-
-    //     qB = qA;
-    //     UnitaryOperator::Ry(-PI/2 * x).apply(qB);
-    //     UnitaryOperator::Ry(-PI/4 * (y * 2 - 1)).apply(qB);
-    //     b = Z.measure(qB) > 0 ? 0 : 1;
-
-    //     winCount += referee.check(a,b);
-    // }
-
-    // std::cout << "Win rate: " << winCount/n*100 << "%" << std::endl;
 
     return 0;
 }
