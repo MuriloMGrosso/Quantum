@@ -90,6 +90,90 @@ Qbit Qbit::one()    { return Qbit(0, 1); }
 Qbit Qbit::plus()   { return Qbit(1/std::sqrt(2), 1/std::sqrt(2)); }
 Qbit Qbit::minus()  { return Qbit(1/std::sqrt(2),-1/std::sqrt(2)); }
 
+std::ostream& operator<<(std::ostream& os, const Qbit& q){
+    Qbit temp = q;
+    std::complex<double> a = temp.getAmplitude(0);
+    std::complex<double> b = temp.getAmplitude(1);   
+    double x = 2*(a*b).real();
+    double y = 2*(a*b).imag();
+    double z = std::pow(std::abs(a), 2) - std::pow(std::abs(b), 2);
+
+    char c = 'X';
+    char circle[] = {
+        ' ', ' ', ' ', '.', ':', '\'', '\'', '\'', ':', '.', ' ', ' ', ' ',
+        ' ', '.', '\'', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '`', '.', ' ',
+        ':', '\'', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '`', ':',
+        ':', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ':',
+        ':', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ':',
+        ' ', '`', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '\'', ' ',
+        ' ', ' ', ' ', '`', ':', '.', '.', '.', ':', '\'', ' ', ' ', ' ', 
+    };
+
+    os << "x         |0 >        " << " | ";
+    os << "y         |+ >        " << " | ";
+    os << "z         |i >        " << std::endl;
+
+    for(int i = 0; i < 7; i++){
+        if(i == 3)
+            os << "|-i >";
+        else
+            os << "     ";
+        for(int j = 0; j < 13; j++){
+            if((3 - i) == std::round(z*3) && (j - 6) == std::round(y*6))
+                os << c;
+            else
+                os << circle[i*13 + j];
+        }
+        if(i == 3)
+            os << "|i >";
+        else
+            os << "    ";
+
+        os << " | ";
+
+        if(i == 3)
+            os << " |1 >";
+        else
+            os << "     ";
+        for(int j = 0; j < 13; j++){
+            if((3 - i) == std::round(x*3) && (j - 6) == std::round(z*6))
+                os << c;
+            else
+                os << circle[i*13 + j];
+        }
+        if(i == 3)
+            os << "|0 >";
+        else
+            os << "    ";
+
+        os << " | ";
+
+        if(i == 3)
+            os << " |- >";
+        else
+            os << "     ";
+        for(int j = 0; j < 13; j++){
+            if((3 - i) == std::round(y*3) && (j - 6) == std::round(x*6))
+                os << c;
+            else
+                os << circle[i*13 + j];
+        }
+        if(i == 3)
+            os << "|+ >";
+        else
+            os << "    ";
+
+        os << std::endl;
+    }
+
+    os << "          |1 >        " << " | ";
+    os << "          |- >        " << " | ";
+    os << "         |-i >        " << std::endl;
+    os << std::endl;
+
+    return os;
+}
+
 UnitaryOperator::UnitaryOperator(ComplexMatrix matrix) : ComplexMatrix(matrix){}
 
 Qdit UnitaryOperator::apply(Qdit &q){

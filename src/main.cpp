@@ -48,6 +48,8 @@ int main(){
     // std::cout << "Qbit B: " << std::endl << qB.ket() << std::endl;
     // std::cout << "System: " << std::endl << compositeSystem.ket() << std::endl;
 
+    std::cout << Qbit::zero() << std::endl;
+
     for(int i = 0; i < n; i++){
         Referee referee(x,y);
 

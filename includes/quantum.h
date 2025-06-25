@@ -39,6 +39,7 @@ public:
     static Qbit one();
     static Qbit plus();
     static Qbit minus();
+    friend std::ostream& operator<<(std::ostream& os,const Qbit& q);
 };
 
 class UnitaryOperator : public ComplexMatrix{
