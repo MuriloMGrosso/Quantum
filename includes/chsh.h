@@ -14,15 +14,15 @@ public:
 class Player{
 private:
     int x;
-    Qbit q;
+    Qbit* q;
 public:
-    Player(int x, Qbit q);
-    int oneStrategy();
-    int zeroStrategy();
+    Player(int x);
+    Player(int x, Qbit &q);
     int copyStrategy();
     int randomStrategy();
-    int oppositStrategy();
-    int quantumStrategy();
+    int oppositeStrategy();
+    int constStrategy(int n);
+    int quantumStrategy(double theta0, double theta1);
 };
 
 #endif
