@@ -1,3 +1,14 @@
+/*----------------------------------------------------------------------------------------------------------------------------
+   _____ _    _  _____ _    _                                                       |
+  / ____| |  | |/ ____| |  | |                                                      | CHSH:
+ | |    | |__| | (___ | |__| |   __ _  __ _ _ __ ___   ___                          | A simple implementation of the CHSH
+ | |    |  __  |\___ \|  __  |  / _` |/ _` | '_ ` _ \ / _ \                         | game and some basic strategies.
+ | |____| |  | |____) | |  | | | (_| | (_| | | | | | |  __/                         |
+  \_____|_|  |_|_____/|_|  |_|  \__, |\__,_|_| |_| |_|\___|                         |
+                                 __/ |                                              | By Murilo M. Grosso
+                                |___/                                               |
+----------------------------------------------------------------------------------------------------------------------------*/
+
 #include "../includes/chsh.h"
 #include <iostream>
 #include <cstdlib>
@@ -18,7 +29,7 @@ Player::Player(int x, Qbit &q) : x(x), q(&q){}
 
 int Player::constStrategy(int n)    { return n; }
 int Player::copyStrategy()          { return x; }
-int Player::oppositeStrategy()       { return !x; }
+int Player::oppositeStrategy()      { return !x;}
 
 int Player::randomStrategy(){ 
     return (double)std::rand() / RAND_MAX > 0.5 ? 1 : 0; 
